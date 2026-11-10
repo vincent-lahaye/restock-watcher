@@ -1,0 +1,5 @@
+# restock-watcher — deps runtime (image légère, pas de navigateur)
+curl_cffi>=0.7          # fetch HTTP avec impersonation TLS Chrome (défait les WAF basiques) + proxy
+selectolax>=0.3,<1.0        # parseur HTML rapide (lexbor), sélecteurs CSS, zéro dep système
+openai>=1.40            # client OpenAI-compatible -> Kimi (api.moonshot.ai/v1) et OpenRouter
+anthropic>=0.40         # fallback provider Claude Haiku (optionnel, importé à la demande)
