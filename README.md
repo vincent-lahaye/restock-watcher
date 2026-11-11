@@ -4,6 +4,9 @@ Surveille la disponibilité d'un produit **WooCommerce** et envoie une alerte
 **ntfy** quand son état change. Un LLM qualifie le changement pour éviter les
 fausses alertes. Conçu pour tourner en conteneur Docker.
 
+Pour reproduire la surveillance du **Midea PortaSplit chez Optimea** et la faire
+tourner H24 : [guide de déploiement destiné aux LLMs](docs/midea-portasplit.md).
+
 ## Comment ça marche
 
 1. **Fetch furtif** : `curl_cffi` (impersonation TLS Chrome), à travers un proxy
