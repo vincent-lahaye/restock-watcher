@@ -62,6 +62,33 @@ Le LLM ne dépend d'aucun fournisseur : `LLM_PROVIDER=anthropic`,
 
 ## Lancer
 
+### Image prête à l'emploi (sans compilation)
+
+La CI teste le détecteur et la cadence dans l'image sur **AMD64 et ARM64**, puis
+publie sur [GitHub Container Registry](https://github.com/vincent-lahaye/restock-watcher/pkgs/container/restock-watcher)
+après succès sur `main`. Aucun secret du watcher n'est nécessaire dans la CI.
+
+```bash
+cp .env.example .env   # puis remplir
+cp docker-compose.image.yml docker-compose.yml
+docker compose pull
+docker compose up -d
+docker compose logs --tail=100 restock-watcher
+```
+
+L'image `ghcr.io/vincent-lahaye/restock-watcher:latest` suit la dernière publication
+réussie. Pour figer une version, remplacer `latest` par `sha-<SHA complet du commit>`.
+Pour mettre à jour : `docker compose pull && docker compose up -d`.
+L'état reste dans `./data` et les logs sont limités à trois fichiers de 10 Mo.
+
+**Premier déploiement du package :** GitHub crée les packages privés par défaut.
+Le propriétaire doit ouvrir **Package settings → Change visibility → Public**
+pour permettre un téléchargement sans connexion. Tant que cette étape n'est pas
+faite, utiliser un compte autorisé connecté à GHCR ou compiler localement
+avec la méthode ci-dessous.
+
+### Compilation locale
+
 ```bash
 cp .env.example .env   # puis remplir
 cp docker-compose.example.yml docker-compose.yml

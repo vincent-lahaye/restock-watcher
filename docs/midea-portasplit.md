@@ -75,9 +75,15 @@ git clone https://github.com/vincent-lahaye/restock-watcher.git
 cd restock-watcher
 cp .env.example .env
 chmod 600 .env
-cp docker-compose.example.yml docker-compose.yml
+cp docker-compose.image.yml docker-compose.yml
 mkdir -p data
 ```
+
+Le fichier `docker-compose.image.yml` utilise l'image GHCR prête à l'emploi pour
+AMD64 et ARM64, sans compilation sur l'hôte. Si le package est encore privé,
+le propriétaire doit le rendre public dans ses paramètres GitHub, ou l'hôte
+doit être connecté à GHCR avec un compte autorisé. En alternative, copier
+`docker-compose.example.yml` en `docker-compose.yml` pour compiler localement.
 
 Si le dépôt existe déjà, l'utiliser et préserver sa configuration. Remplir `.env`
 avec les valeurs suivantes ; **remplacer les trois valeurs `REMPLACER_…`** :
@@ -132,9 +138,14 @@ Exécuter depuis le répertoire du dépôt, avant de démarrer la boucle permane
 
 ```bash
 docker compose config --quiet
-docker compose build
+docker compose pull
 docker compose run --rm restock-watcher --once
 ```
+
+Avec le Compose de compilation locale, remplacer `docker compose pull` par
+`docker compose build`. En cas d'erreur d'accès à GHCR, vérifier la visibilité du
+package avant de modifier les identifiants du watcher, qui n'ont aucun lien avec
+le registre d'images.
 
 **Un code de sortie nul de `--once` ne prouve pas une lecture réussie** : la boucle
 enregistre aussi les échecs et peut terminer normalement. Lire les logs et
@@ -210,7 +221,11 @@ disponibilité et retente au cycle suivant.
 Après modification de `.env`, appliquer la configuration avec
 `docker compose up -d --force-recreate` ; un simple `restart` ne recharge pas
 les variables. Pour mettre à jour le code, vérifier les modifications locales,
-puis utiliser `git pull --ff-only` et `docker compose up -d --build`. Conserver
+puis utiliser `git pull --ff-only`, `docker compose pull` et `docker compose up -d`
+pour l'image publiée. Avec la compilation locale, utiliser à la place
+`git pull --ff-only` et `docker compose up -d --build`. Le tag `latest` suit la
+dernière CI réussie ; utiliser `sha-<SHA complet du commit>` pour figer l'image.
+Conserver
 `.env` et `data/`. Pour arrêter : `docker compose stop` ; pour reprendre :
 `docker compose up -d`.
 
@@ -228,7 +243,8 @@ identifiants proxy ni topic ntfy.
   version du 24 juillet 2026, relus le 11 novembre 2026. Les chemins privés,
   noms de machines et secrets ne sont pas reproduits ici.
 - Configuration publique : [exemple d'environnement](../.env.example),
-  [Compose](../docker-compose.example.yml), [cadence](../restock_watcher/schedule.py)
+  [Compose avec image publiée](../docker-compose.image.yml),
+  [Compose avec compilation locale](../docker-compose.example.yml), [cadence](../restock_watcher/schedule.py)
   et [boucle de surveillance](../restock_watcher/__main__.py).
 - Docker : [exécution ponctuelle avec Compose](https://docs.docker.com/reference/cli/docker/compose/run/),
   [politiques de redémarrage](https://docs.docker.com/engine/containers/start-containers-automatically/).

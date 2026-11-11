@@ -1,0 +1,12 @@
+services:
+  restock-watcher:
+    image: ghcr.io/vincent-lahaye/restock-watcher:latest
+    env_file: .env
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

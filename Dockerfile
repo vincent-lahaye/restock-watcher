@@ -2,6 +2,10 @@
 # WAF courants avec un proxy résidentiel).
 FROM python:3.12-slim
 
+LABEL org.opencontainers.image.source="https://github.com/vincent-lahaye/restock-watcher" \
+    org.opencontainers.image.description="Surveillance de stock WooCommerce avec alertes ntfy" \
+    org.opencontainers.image.licenses="MIT"
+
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1

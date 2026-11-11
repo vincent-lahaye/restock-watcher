@@ -1,0 +1,70 @@
+name: Tests et image Docker
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Tests dans l'image (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            arch: amd64
+          - runner: ubuntu-24.04-arm
+            arch: arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Construire l'image
+        run: docker build -t restock-watcher:test .
+      - name: Tests du détecteur et de la cadence
+        run: |
+          docker run --rm --network none --entrypoint python -v "$PWD/tests:/app/tests:ro" restock-watcher:test tests/test_detect.py
+          docker run --rm --network none --entrypoint python -v "$PWD/tests:/app/tests:ro" restock-watcher:test tests/test_schedule.py
+      - name: Vérifier les imports du programme
+        run: docker run --rm --network none --entrypoint python restock-watcher:test -c 'import restock_watcher.__main__'
+      - name: Vérifier les fichiers Compose
+        run: |
+          cp .env.example .env
+          docker compose -f docker-compose.example.yml config --quiet
+          docker compose -f docker-compose.image.yml config --quiet
+
+  publish:
+    name: Publier sur GHCR
+    needs: test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && github.repository == 'vincent-lahaye/restock-watcher'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ghcr.io/vincent-lahaye/restock-watcher:latest
+            ghcr.io/vincent-lahaye/restock-watcher:sha-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
