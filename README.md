@@ -81,11 +81,11 @@ réussie. Pour figer une version, remplacer `latest` par `sha-<SHA complet du co
 Pour mettre à jour : `docker compose pull && docker compose up -d`.
 L'état reste dans `./data` et les logs sont limités à trois fichiers de 10 Mo.
 
-**Premier déploiement du package :** GitHub crée les packages privés par défaut.
-Le propriétaire doit ouvrir **Package settings → Change visibility → Public**
-pour permettre un téléchargement sans connexion. Tant que cette étape n'est pas
-faite, utiliser un compte autorisé connecté à GHCR ou compiler localement
-avec la méthode ci-dessous.
+L'image est accessible sans connexion à GHCR. Pour publier votre propre fork,
+adapter le nom du registre dans le workflow et le Compose, ainsi que la condition
+de publication du workflow. Vérifier ensuite la visibilité du nouveau package :
+GitHub crée les packages privés par défaut ; le propriétaire peut les rendre
+publics dans **Package settings → Change visibility → Public**.
 
 ### Compilation locale
 

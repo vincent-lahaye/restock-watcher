@@ -80,9 +80,9 @@ mkdir -p data
 ```
 
 Le fichier `docker-compose.image.yml` utilise l'image GHCR prête à l'emploi pour
-AMD64 et ARM64, sans compilation sur l'hôte. Si le package est encore privé,
-le propriétaire doit le rendre public dans ses paramètres GitHub, ou l'hôte
-doit être connecté à GHCR avec un compte autorisé. En alternative, copier
+AMD64 et ARM64, sans compilation sur l'hôte ni connexion à GHCR. Pour un fork
+publiant un autre package, vérifier sa visibilité et adapter le nom de l'image.
+En alternative, copier
 `docker-compose.example.yml` en `docker-compose.yml` pour compiler localement.
 
 Si le dépôt existe déjà, l'utiliser et préserver sa configuration. Remplir `.env`
